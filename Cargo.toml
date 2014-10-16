@@ -1,0 +1,9 @@
+[project]
+
+name = "buffoon"
+version = "0.5.0"
+authors = ["wycats@gmail.com", "me@carllerche.com", "tim@spork.in"]
+
+[dev-dependencies.hamcrest]
+
+git = "https://github.com/carllerche/hamcrest-rust"
