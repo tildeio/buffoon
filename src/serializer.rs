@@ -69,7 +69,7 @@ impl OutputStream for Serializer {
         let nested_size = self.size - prev_count;
 
         if nested_size > 0 {
-            *self.nested.get_mut(position) = nested_size;
+            self.nested[position] = nested_size;
 
             try!(self.write_head(field, LengthDelimited));
             try!(self.write_uint(nested_size));
