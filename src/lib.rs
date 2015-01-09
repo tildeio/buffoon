@@ -1,8 +1,10 @@
+#![feature(int_uint)]
+#![allow(unstable)]
 
 #[cfg(test)]
 extern crate hamcrest;
 
-use std::io::{Reader, IoResult};
+use std::io::IoResult;
 pub use message::{Message, LoadableMessage};
 pub use input_stream::{InputStream, Field};
 pub use output_stream::OutputStream;
@@ -35,8 +37,10 @@ pub fn serializer_for<M: Message>(msg: &M) -> IoResult<Serializer> {
 }
 
 pub fn serialize<M: Message>(msg: &M) -> IoResult<Vec<u8>> {
+    use std::iter::repeat;
+
     let serializer = try!(serializer_for(msg));
-    let mut bytes = Vec::from_elem(serializer.size(), 0);
+    let mut bytes: Vec<u8> = repeat(0).take(serializer.size()).collect();
 
     try!(serializer.serialize_into(msg, bytes.as_mut_slice()));
     Ok(bytes)
@@ -77,6 +81,6 @@ mod test {
     pub fn test_writing_simple_message() {
         let bytes = serialize(&Simple).unwrap();
         let expect = b"\x0A\x05hello";
-        assert!(bytes.as_slice() == expect, "expect={}; actual={}", expect, bytes);
+        assert!(bytes.as_slice() == expect, "expect={:?}; actual={:?}", expect, bytes);
     }
 }

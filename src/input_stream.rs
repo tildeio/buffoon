@@ -1,18 +1,10 @@
 use std::fmt;
 use std::io::{Reader, IoResult, IoError, EndOfFile, InvalidInput};
 use std::num::from_u64;
+use wire_type::WireType;
+use wire_type::WireType::*;
 
-use wire_type::{
-    EndGroup,
-    LengthDelimited,
-    SixtyFourBit,
-    StartGroup,
-    ThirtyTwoBit,
-    Varint,
-    WireType
-};
-
-pub struct InputStream<'a, R:'a> {
+pub struct InputStream<'a, R: 'a> {
     reader: &'a mut R
 }
 
@@ -150,8 +142,8 @@ impl<'a, 'b, R: Reader> Field<'a, 'b, R> {
 }
 
 impl<'a, 'b, R> fmt::Show for Field<'a, 'b, R> {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
-        write!(fmt, "Field(tag={}; wire-type={})", self.tag, self.wire_type)
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "Field(tag={:?}; wire-type={:?})", self.tag, self.wire_type)
     }
 }
 
@@ -179,7 +171,6 @@ mod test {
             assert!(i.read_field().unwrap().is_none());
         });
     }
-
     #[test]
     pub fn test_reading_string() {
         with_input_stream(b"\x0A\x04zomg", |i| {
@@ -296,7 +287,7 @@ mod test {
         });
     }
 
-    fn with_input_stream<'a>(bytes: &'a [u8], action: |&mut InputStream<BufReader<'a>>|) {
+    fn with_input_stream<F: FnOnce(&mut InputStream<BufReader>)>(bytes: &[u8], action: F) {
         let mut reader = BufReader::new(bytes);
         let mut stream = InputStream::new(&mut reader);
 

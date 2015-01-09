@@ -2,7 +2,7 @@ use std::io;
 use {Message, OutputStream};
 use output_stream::OutputStreamBackend;
 use output_writer::OutputWriter;
-use wire_type::{LengthDelimited};
+use wire_type::WireType::*;
 
 pub struct Serializer {
     size: uint,

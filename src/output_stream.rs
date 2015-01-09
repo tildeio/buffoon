@@ -1,12 +1,13 @@
 use std::io;
-use wire_type::{LengthDelimited, Varint, WireType};
+use wire_type::WireType;
+use wire_type::WireType::*;
 use {Message};
 
 pub trait OutputStream : OutputStreamBackend {
     /// Writes a nested message with the specified field number
     fn write_message_field<M: Message>(&mut self, field: uint, msg: &M) -> io::IoResult<()>;
 
-    fn write_repeated_message_field<'a, M:'a + Message, I: Iterator<&'a M>>(&mut self, field: uint, mut msgs: I) -> io::IoResult<()> {
+    fn write_repeated_message_field<'a, M:'a + Message, I: Iterator<Item=&'a M>>(&mut self, field: uint, mut msgs: I) -> io::IoResult<()> {
         for msg in msgs {
             try!(self.write_message_field(field, msg));
         }
@@ -25,7 +26,7 @@ pub trait OutputStream : OutputStreamBackend {
         Ok(())
     }
 
-    fn write_repeated_byte_field<'a, I: Iterator<&'a [u8]>>(&mut self, field: uint, mut vals: I) -> io::IoResult<()> {
+    fn write_repeated_byte_field<'a, I: Iterator<Item=&'a [u8]>>(&mut self, field: uint, mut vals: I) -> io::IoResult<()> {
         for val in vals {
             try!(self.write_byte_field(field, val));
         }
@@ -46,12 +47,12 @@ pub trait OutputStream : OutputStreamBackend {
         Ok(())
     }
 
-    fn write_repeated_str_field<'a, I: Iterator<&'a str>>(&mut self, field: uint, vals: I) -> io::IoResult<()> {
+    fn write_repeated_str_field<'a, I: Iterator<Item=&'a str>>(&mut self, field: uint, vals: I) -> io::IoResult<()> {
         self.write_repeated_byte_field(field, vals.map(|s| s.as_bytes()))
     }
 }
 
-pub trait OutputStreamBackend {
+pub trait OutputStreamBackend : Sized {
     fn write_bytes(&mut self, bytes: &[u8]) -> io::IoResult<()>;
 
     // Write a single byte

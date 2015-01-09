@@ -1,6 +1,6 @@
 use std::io::{Writer, IoResult, IoError, OtherIoError};
 use output_stream::OutputStreamBackend;
-use wire_type::{LengthDelimited};
+use wire_type::WireType::*;
 use {Message, OutputStream};
 
 pub struct OutputWriter<'a, W:'a> {
@@ -10,7 +10,7 @@ pub struct OutputWriter<'a, W:'a> {
 }
 
 impl<'a, W: Writer> OutputWriter<'a, W> {
-    pub fn new<'a>(nested: &'a [uint], writer: &'a mut W) -> OutputWriter<'a, W> {
+    pub fn new(nested: &'a [uint], writer: &'a mut W) -> OutputWriter<'a, W> {
         OutputWriter {
             curr: 0,
             nested: nested,
