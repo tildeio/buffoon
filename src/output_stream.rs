@@ -1,4 +1,4 @@
-use std::io;
+use std::old_io as io;
 use wire_type::WireType;
 use wire_type::WireType::*;
 use {Message};

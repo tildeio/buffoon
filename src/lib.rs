@@ -1,10 +1,11 @@
 #![feature(int_uint)]
-#![allow(unstable)]
+#![feature(core)]
+#![feature(io)]
 
 #[cfg(test)]
 extern crate hamcrest;
 
-use std::io::IoResult;
+use std::old_io::IoResult;
 pub use message::{Message, LoadableMessage};
 pub use input_stream::{InputStream, Field};
 pub use output_stream::OutputStream;
@@ -48,7 +49,7 @@ pub fn serialize<M: Message>(msg: &M) -> IoResult<Vec<u8>> {
 
 #[cfg(test)]
 mod test {
-    use std::io::IoResult;
+    use std::old_io::IoResult;
     use super::{Message, OutputStream, serialize};
 
     struct Empty;

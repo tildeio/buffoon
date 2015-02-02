@@ -1,6 +1,6 @@
 use self::WireType::*;
 
-#[derive(Show)]
+#[derive(Debug)]
 pub enum WireType {
     Varint          = 0,
     SixtyFourBit    = 1,

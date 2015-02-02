@@ -1,5 +1,5 @@
 use std::fmt;
-use std::io::{Reader, IoResult, IoError, EndOfFile, InvalidInput};
+use std::old_io::{Reader, IoResult, IoError, EndOfFile, InvalidInput};
 use std::num::from_u64;
 use wire_type::WireType;
 use wire_type::WireType::*;
@@ -141,7 +141,7 @@ impl<'a, 'b, R: Reader> Field<'a, 'b, R> {
     }
 }
 
-impl<'a, 'b, R> fmt::Show for Field<'a, 'b, R> {
+impl<'a, 'b, R> fmt::Debug for Field<'a, 'b, R> {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "Field(tag={:?}; wire-type={:?})", self.tag, self.wire_type)
     }
@@ -161,7 +161,7 @@ fn unexpected_output(desc: &'static str) -> IoError {
 
 #[cfg(test)]
 mod test {
-    use std::io::BufReader;
+    use std::old_io::BufReader;
     use hamcrest::{assert_that,equal_to};
     use super::InputStream;
 

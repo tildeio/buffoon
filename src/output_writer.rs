@@ -1,4 +1,4 @@
-use std::io::{Writer, IoResult, IoError, OtherIoError};
+use std::old_io::{Writer, IoResult, IoError, OtherIoError};
 use output_stream::OutputStreamBackend;
 use wire_type::WireType::*;
 use {Message, OutputStream};
@@ -25,7 +25,7 @@ impl<'a, W: Writer> OutputStreamBackend for OutputWriter<'a, W> {
     }
 
     fn write_bytes(&mut self, bytes: &[u8]) -> IoResult<()> {
-        self.writer.write(bytes)
+        self.writer.write_all(bytes)
     }
 }
 
