@@ -1,12 +1,12 @@
-use std::io;
+use std::io::{self, Write};
 use {Message, OutputStream};
 use output_stream::OutputStreamBackend;
 use output_writer::OutputWriter;
 use wire_type::WireType::*;
 
 pub struct Serializer {
-    size: uint,
-    nested: Vec<uint>
+    size: usize,
+    nested: Vec<usize>
 }
 
 impl Serializer {
@@ -17,11 +17,11 @@ impl Serializer {
         }
     }
 
-    pub fn size(&self) -> uint {
+    pub fn size(&self) -> usize {
         self.size
     }
 
-    pub fn serialize<M: Message, W: Writer>(&self, msg: &M, writer: &mut W) -> io::IoResult<()> {
+    pub fn serialize<M: Message, W: Write>(&self, msg: &M, writer: &mut W) -> io::Result<()> {
         let mut out = OutputWriter::new(self.nested.as_slice(), writer);
 
         try!(msg.serialize(&mut out));
@@ -29,13 +29,12 @@ impl Serializer {
         Ok(())
     }
 
-    pub fn serialize_into<M: Message>(&self, msg: &M, dst: &mut [u8]) -> io::IoResult<()> {
+    pub fn serialize_into<M: Message>(&self, msg: &M, dst: &mut [u8]) -> io::Result<()> {
         if self.size > dst.len() {
-            return Err(io::IoError {
-                kind: io::InvalidInput,
-                desc: "destination buffer not large enough to contain serialized message",
-                detail: None
-            });
+            return Err(io::Error::new(
+                    io::ErrorKind::InvalidInput,
+                    "destination buffer not large enough to contain serialized message",
+                    None));
         }
 
         self.serialize(msg, &mut io::BufWriter::new(dst))
@@ -43,13 +42,13 @@ impl Serializer {
 }
 
 impl OutputStreamBackend for Serializer {
-    fn write_byte(&mut self, _: u8) -> io::IoResult<()> {
+    fn write_byte(&mut self, _: u8) -> io::Result<()> {
         // TODO: Handle overflow
         self.size += 1;
         Ok(())
     }
 
-    fn write_bytes(&mut self, bytes: &[u8]) -> io::IoResult<()> {
+    fn write_bytes(&mut self, bytes: &[u8]) -> io::Result<()> {
         // TODO: Handle overflow
         self.size += bytes.len();
         Ok(())
@@ -57,7 +56,7 @@ impl OutputStreamBackend for Serializer {
 }
 
 impl OutputStream for Serializer {
-    fn write_message_field<M: Message>(&mut self, field: uint, msg: &M) -> io::IoResult<()> {
+    fn write_message_field<M: Message>(&mut self, field: usize, msg: &M) -> io::Result<()> {
         let position = self.nested.len();
         let prev_count = self.size;
 
@@ -72,7 +71,7 @@ impl OutputStream for Serializer {
             self.nested[position] = nested_size;
 
             try!(self.write_head(field, LengthDelimited));
-            try!(self.write_uint(nested_size));
+            try!(self.write_usize(nested_size));
         }
 
         Ok(())

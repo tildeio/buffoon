@@ -1,6 +1,6 @@
 use self::WireType::*;
 
-#[derive(Show)]
+#[derive(Debug)]
 pub enum WireType {
     Varint          = 0,
     SixtyFourBit    = 1,
@@ -11,7 +11,7 @@ pub enum WireType {
 }
 
 impl WireType {
-    pub fn from_uint(val: uint) -> Option<WireType> {
+    pub fn from_usize(val: usize) -> Option<WireType> {
         Some(match val {
             0 => Varint,
             1 => SixtyFourBit,

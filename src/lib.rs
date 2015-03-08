@@ -1,10 +1,9 @@
-#![feature(int_uint)]
-#![allow(unstable)]
+#![feature(core, io)]
 
 #[cfg(test)]
 extern crate hamcrest;
 
-use std::io::IoResult;
+use std::io;
 pub use message::{Message, LoadableMessage};
 pub use input_stream::{InputStream, Field};
 pub use output_stream::OutputStream;
@@ -27,7 +26,7 @@ pub fn load<'a, M: LoadableMessage, R: Reader>(reader: &mut R) -> IoResult<M> {
 }
 */
 
-pub fn serializer_for<M: Message>(msg: &M) -> IoResult<Serializer> {
+pub fn serializer_for<M: Message>(msg: &M) -> io::Result<Serializer> {
     let mut serializer = Serializer::new();
 
     // populate the message size info
@@ -36,7 +35,7 @@ pub fn serializer_for<M: Message>(msg: &M) -> IoResult<Serializer> {
     Ok(serializer)
 }
 
-pub fn serialize<M: Message>(msg: &M) -> IoResult<Vec<u8>> {
+pub fn serialize<M: Message>(msg: &M) -> io::Result<Vec<u8>> {
     use std::iter::repeat;
 
     let serializer = try!(serializer_for(msg));
@@ -48,13 +47,13 @@ pub fn serialize<M: Message>(msg: &M) -> IoResult<Vec<u8>> {
 
 #[cfg(test)]
 mod test {
-    use std::io::IoResult;
+    use std::io;
     use super::{Message, OutputStream, serialize};
 
     struct Empty;
 
     impl Message for Empty {
-        fn serialize<O: OutputStream>(&self, _: &mut O) -> IoResult<()> {
+        fn serialize<O: OutputStream>(&self, _: &mut O) -> io::Result<()> {
             Ok(())
         }
     }
@@ -68,7 +67,7 @@ mod test {
     struct Simple;
 
     impl Message for Simple {
-        fn serialize<O: OutputStream>(&self, out: &mut O) -> IoResult<()> {
+        fn serialize<O: OutputStream>(&self, out: &mut O) -> io::Result<()> {
             try!(out.write_str_field(1, "hello"));
             // try!(output.write_varint_field(2, self.config()));
             // try!(output.write_repeated_str_field(3, self.cmd().iter().map(|s| s.as_slice())));
