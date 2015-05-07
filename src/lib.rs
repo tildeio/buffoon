@@ -1,5 +1,3 @@
-#![feature(core, io)]
-
 #[cfg(test)]
 extern crate hamcrest;
 
@@ -41,7 +39,7 @@ pub fn serialize<M: Message>(msg: &M) -> io::Result<Vec<u8>> {
     let serializer = try!(serializer_for(msg));
     let mut bytes: Vec<u8> = repeat(0).take(serializer.size()).collect();
 
-    try!(serializer.serialize_into(msg, bytes.as_mut_slice()));
+    try!(serializer.serialize_into(msg, &mut bytes));
     Ok(bytes)
 }
 
@@ -80,6 +78,6 @@ mod test {
     pub fn test_writing_simple_message() {
         let bytes = serialize(&Simple).unwrap();
         let expect = b"\x0A\x05hello";
-        assert!(bytes.as_slice() == expect, "expect={:?}; actual={:?}", expect, bytes);
+        assert!(bytes == expect, "expect={:?}; actual={:?}", expect, bytes);
     }
 }

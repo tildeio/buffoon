@@ -22,7 +22,7 @@ impl Serializer {
     }
 
     pub fn serialize<M: Message, W: Write>(&self, msg: &M, writer: &mut W) -> io::Result<()> {
-        let mut out = OutputWriter::new(self.nested.as_slice(), writer);
+        let mut out = OutputWriter::new(&self.nested, writer);
 
         try!(msg.serialize(&mut out));
 
@@ -33,8 +33,7 @@ impl Serializer {
         if self.size > dst.len() {
             return Err(io::Error::new(
                     io::ErrorKind::InvalidInput,
-                    "destination buffer not large enough to contain serialized message",
-                    None));
+                    "destination buffer not large enough to contain serialized message"));
         }
 
         self.serialize(msg, &mut io::BufWriter::new(dst))

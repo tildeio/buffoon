@@ -1,4 +1,5 @@
 use std::io;
+use std::borrow::Borrow;
 use wire_type::WireType;
 use wire_type::WireType::*;
 use {Message};
@@ -38,9 +39,9 @@ pub trait OutputStream : OutputStreamBackend {
         self.write_byte_field(field, val.as_bytes())
     }
 
-    fn write_opt_str_field<S: Str>(&mut self, field: usize, val: Option<S>) -> io::Result<()> {
+    fn write_opt_str_field<S: Borrow<str>>(&mut self, field: usize, val: Option<S>) -> io::Result<()> {
         match val {
-            Some(s) => try!(self.write_str_field(field, s.as_slice())),
+            Some(s) => try!(self.write_str_field(field, s.borrow())),
             None => {}
         }
 

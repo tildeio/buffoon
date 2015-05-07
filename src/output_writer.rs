@@ -47,5 +47,5 @@ impl<'a, W: Write> OutputStream for OutputWriter<'a, W> {
 }
 
 fn invalid_serializer<T>() -> io::Result<T> {
-    Err(io::Error::new(io::ErrorKind::Other, "invalid serializer for current message", None))
+    Err(io::Error::new(io::ErrorKind::Other, "invalid serializer for current message"))
 }

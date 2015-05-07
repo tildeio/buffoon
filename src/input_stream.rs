@@ -1,6 +1,5 @@
-use std::fmt;
+use std::{fmt, usize};
 use std::io::{self, Read};
-use std::num::FromPrimitive;
 use wire_type::WireType;
 use wire_type::WireType::*;
 
@@ -37,10 +36,11 @@ impl<'a, R: Read> InputStream<'a, R> {
 
     fn read_usize(&mut self) -> io::Result<Option<usize>> {
         if let Some(num) = try!(self.read_unsigned_varint()) {
-            match FromPrimitive::from_u64(num) {
-                Some(num) => return Ok(Some(num)),
-                None => return Err(unexpected_output("requested value could not fit in usize")),
+            if num > (usize::MAX as u64) {
+                return Err(unexpected_output("requested value could not fit in usize"));
             }
+
+            return Ok(Some(num as usize));
         }
 
         Ok(None)
@@ -101,7 +101,7 @@ impl<'a, R: Read> InputStream<'a, R> {
         let mut ret = Vec::with_capacity(len);
 
         unsafe {
-            let mut buf = slice::from_raw_parts_mut(ret.as_mut_slice().as_mut_ptr(), len);
+            let mut buf = slice::from_raw_parts_mut(ret.as_mut_ptr(), len);
             let mut off = 0;
 
             while off < len {
@@ -213,7 +213,7 @@ fn has_msb(byte: u8) -> bool {
 }
 
 fn unexpected_output(desc: &'static str) -> io::Error {
-    io::Error::new(io::ErrorKind::InvalidInput, desc, None)
+    io::Error::new(io::ErrorKind::InvalidInput, desc)
 }
 
 fn eof() -> io::Error {
